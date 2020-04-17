@@ -171,10 +171,7 @@ struct Player
         auto t = MahjongFanCalculator(pack, hand, trans_str(u), hua, isZIMO, (R[u.fi][u.se] == 0), isGANG, (tot == 0), pos, quan);
         int re = 0;
         for (auto i : t)
-        {
-            cerr << i.fi << " " << i.se << endl;
             re += i.fi;
-        }
         return re;
     }
 
@@ -232,161 +229,6 @@ struct Player
         F.push_back(Fulu(2, u, v));
     }
 };
-
-// 3k+2张牌向听
-namespace space_xiang_ting
-{
-    int ans, lim;
-    int A[100][100], B[100][100];
-
-    void init(Player a)
-    {
-        ans = 9 - a.F.size() * 2;
-        lim = 4 - a.F.size();
-        for (int i = 1; i <= 3; i++)
-            for (int j = 1; j <= 9; j++)
-                A[i][j] = B[i][j] = a.S[i - 1][j];
-        for (int j = 1; j <= 4; j++)
-            A[0][j] = B[0][j] = a.S[3][j];
-        for (int j = 5; j <= 7; j++)
-            A[0][j] = B[0][j] = a.S[4][j - 4];
-    }
-
-    void dfs(int step, int t1, int t2, int t3)
-    {
-        if (step == 1)
-        {
-            dfs(2, t1, t2, t3);
-            if (t1 < 1)
-            {
-                for (int j = 1; j <= 7; j++)
-                    if (B[0][j] >= 2)
-                    {
-                        B[0][j] -= 2;
-                        dfs(1, t1 + 1, t2, t3);
-                        B[0][j] += 2;
-                    }
-                for (int i = 1; i <= 3; i++)
-                    for (int j = 1; j <= 9; j++)
-                        if (B[i][j] >= 2)
-                        {
-                            B[i][j] -= 2;
-                            dfs(1, t1 + 1, t2, t3);
-                            B[i][j] += 2;
-                        }
-            }
-        }
-        if (step == 2)
-        {
-            dfs(3, t1, t2, t3);
-            if (t2 < lim)
-            {
-                for (int j = 1; j <= 7; j++)
-                    if (B[0][j] >= 3)
-                    {
-                        B[0][j] -= 3;
-                        dfs(2, t1, t2 + 1, t3);
-                        B[0][j] += 3;
-                    }
-                for (int i = 1; i <= 3; i++)
-                    for (int j = 1; j <= 9; j++)
-                        if (B[i][j] >= 3)
-                        {
-                            B[i][j] -= 3;
-                            dfs(2, t1, t2 + 1, t3);
-                            B[i][j] += 3;
-                        }
-                for (int i = 1; i <= 3; i++)
-                    for (int j = 1; j <= 7; j++)
-                        if ((B[i][j] >= 1) && (B[i][j + 1] >= 1) && (B[i][j + 2] >= 1))
-                        {
-                            B[i][j]--;
-                            B[i][j + 1]--;
-                            B[i][j + 2]--;
-                            dfs(2, t1, t2 + 1, t3);
-                            B[i][j]++;
-                            B[i][j + 1]++;
-                            B[i][j + 2]++;
-                        }
-            }
-        }
-        if (step == 3)
-        {
-            dfs(4, t1, t2, t3);
-            if (t2 + t3 < lim)
-            {
-                for (int j = 1; j <= 7; j++)
-                    if ((B[0][j] == 2) && (A[0][j] < 4))
-                    {
-                        B[0][j] -= 2;
-                        dfs(3, t1, t2, t3 + 1);
-                        B[0][j] += 2;
-                    }
-                for (int i = 1; i <= 3; i++)
-                    for (int j = 1; j <= 9; j++)
-                        if ((B[i][j] == 2) && (A[i][j] < 4))
-                        {
-                            B[i][j] -= 2;
-                            dfs(3, t1, t2, t3 + 1);
-                            B[i][j] += 2;
-                        }
-                for (int i = 1; i <= 3; i++)
-                    for (int j = 1; j <= 8; j++)
-                        if ((B[i][j] >= 1) && (B[i][j + 1] >= 1))
-                        {
-                            B[i][j]--;
-                            B[i][j + 1]--;
-                            dfs(3, t1, t2, t3 + 1);
-                            B[i][j]++;
-                            B[i][j + 1]++;
-                        }
-                for (int i = 1; i <= 3; i++)
-                    for (int j = 1; j <= 7; j++)
-                        if ((B[i][j] >= 1) && (B[i][j + 2] >= 1))
-                        {
-                            B[i][j]--;
-                            B[i][j + 2]--;
-                            dfs(3, t1, t2, t3 + 1);
-                            B[i][j]++;
-                            B[i][j + 2]++;
-                        }
-            }
-        }
-        if (step == 4)
-        {
-            int s = 9 - 2 * t2 - t1 - t3;
-            if (t1 == 0)
-            {
-                int flg = 0;
-                for (int j = 1; j <= 7; j++)
-                {
-                    if (B[0][j] >= 2)
-                        return ;
-                    if ((B[0][j] == 1) && (A[0][j] <= 3))
-                        flg = 1;
-                }
-                for (int i = 1; i <= 3; i++)
-                    for (int j = 1; j <= 9; j++)
-                    {
-                        if (B[i][j] >= 2)
-                            return ;
-                        if ((B[i][j] == 1) && (A[i][j] <= 3))
-                            flg = 1;
-                    }
-                if (!flg)
-                    s++;
-            }
-            ans = min(ans, s);
-        }
-    }
-}
-int xiang_ting(Player a)
-{
-    space_xiang_ting :: init(a);
-    space_xiang_ting :: dfs(1, 0, 0, 0);
-    return space_xiang_ting :: ans;
-}
-
 
 vector<string> request, response;
 
@@ -582,48 +424,19 @@ int main()
         sin >> t1;
         if (t1 == 2)
         {
-            sin >> s1;
-            PII u1 = trans_PII(s1);
-            a[0].mo(u1);
-            dec_tot();
-            dec_R(u1);
-            int now = xiang_ting(a[0]);
-            if (now == 0)
-            {
-                int fan = a[0].cal_fan(u1, 1, 0);
-                if (fan >= 8 + a[0].hua)
-                {
-                    sout << "HU";
-                    goto goto_label;
-                }
-            }
-            int mx = -1;
-            PII arg;
+            bool flag = 0;
             rep(i, 0, 4)
+            {
                 rep(j, 1, len[i])
                     if (a[0].S[i][j])
                     {
-                        PII u2 = MP(i, j);
-                        a[0].da(u2);
-                        int s = 0;
-                        rep(k, 0, 4)
-                            rep(l, 1, len[k])
-                                if (R[k][l])
-                                {
-                                    PII u3 = MP(k, l);
-                                    a[0].mo(u3);
-                                    if (xiang_ting(a[0]) < now)
-                                        s += R[k][l];
-                                    a[0].da(u3);
-                                }
-                        if (s > mx)
-                        {
-                            mx = s;
-                            arg = u2;
-                        }
-                        a[0].mo(u2);
+                        sout << "PLAY " << trans_str(MP(i, j));
+                        flag = 1;
+                        break;
                     }
-            sout << "PLAY " << trans_str(arg);
+                if (flag)
+                    break;
+            }
         }
         if (t1 == 3)
         {
@@ -634,53 +447,14 @@ int main()
                 sout << "PASS";
             if (s1 == "PLAY")
             {
-                sin >> s2;
-                PII u1 = trans_PII(s2);
-                a[0].mo(u1);
-                int now = xiang_ting(a[0]);
-                if (now == 0)
-                {
-                    int fan = a[0].cal_fan(u1, 0, 0);
-                    if (fan >= 8 + a[0].hua)
-                    {
-                        sout << "HU";
-                        goto goto_label;
-                    }
-                }
                 sout << "PASS";
             }
             if (s1 == "PENG")
             {
-                sin >> s2;
-                PII u1 = trans_PII(s2);
-                a[0].mo(u1);
-                int now = xiang_ting(a[0]);
-                if (now == 0)
-                {
-                    int fan = a[0].cal_fan(u1, 0, 0);
-                    if (fan >= 8 + a[0].hua)
-                    {
-                        sout << "HU";
-                        goto goto_label;
-                    }
-                }
                 sout << "PASS";
             }
             if (s1 == "CHI")
             {
-                sin >> s2 >> s3;
-                PII u1 = trans_PII(s2), u2 = trans_PII(s3);
-                a[0].mo(u2);
-                int now = xiang_ting(a[0]);
-                if (now == 0)
-                {
-                    int fan = a[0].cal_fan(u1, 0, 0);
-                    if (fan >= 8 + a[0].hua)
-                    {
-                        sout << "HU";
-                        goto goto_label;
-                    }
-                }
                 sout << "PASS";
             }
             if (s1 == "GANG")
@@ -689,23 +463,9 @@ int main()
             }
             if (s1 == "BUGANG")
             {
-                sin >> s2;
-                PII u1 = trans_PII(s2);
-                a[0].mo(u1);
-                int now = xiang_ting(a[0]);
-                if (now == 0)
-                {
-                    int fan = a[0].cal_fan(u1, 0, 0);
-                    if (fan >= 8 + a[0].hua)
-                    {
-                        sout << "HU";
-                        goto goto_label;
-                    }
-                }
                 sout << "PASS";
             }
         }
-        goto_label:;
         response.push_back(sout.str());
     }
 #if SIMPLEIO

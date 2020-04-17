@@ -2,6 +2,10 @@ import os
 import random
 import json
 
+os.system("cp a.cpp p0.cpp")
+os.system("cp a.cpp p1.cpp")
+os.system("cp a.cpp p2.cpp")
+os.system("cp a.cpp p3.cpp")
 os.system("g++ p0.cpp -o p0 -O2 -std=c++11")
 os.system("g++ p1.cpp -o p1 -O2 -std=c++11")
 os.system("g++ p2.cpp -o p2 -O2 -std=c++11")
