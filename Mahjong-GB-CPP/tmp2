@@ -1,0 +1,17 @@
+
+{
+	"command" : "finish",
+	"content" : 
+	{
+		"0" : 0,
+		"1" : 0,
+		"2" : 0,
+		"3" : 0
+	},
+	"display" : 
+	{
+		"action" : "HUANG",
+		"canHu" : [ -4, -4, -4, -4 ],
+		"tileCnt" : 0
+	}
+}
